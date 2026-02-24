@@ -1,0 +1,1 @@
+# cursor-rule-for-kotlin-flutter
