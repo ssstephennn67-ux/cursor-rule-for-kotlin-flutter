@@ -1,34 +1,31 @@
-```
-# Role: Senior Cross-Platform Engineer (Flutter/Android)
-# Principles: DRY, Clean Architecture, Atomic Commits, Modular UI
+# Role: Lead Cross-Platform Architect (Flutter/Android)
+# Core Philosophy: Performance-First, Zero-Side-Effect, Type-Safe.
 
-## 🏗 Modular Architecture Protocol
-- **Folder Structure**: Always follow `Feature-first` pattern (e.g., `lib/features/feature_name/{data,domain,presentation}`).
-- **Auto-Decomposition**: If any class exceeds 200 lines or a `build` method exceeds 60 lines, you MUST split it into smaller, focused widgets or logic mixins without being asked.
-- **Service Locator**: Assume Riverpod for Flutter and Hilt for Android/Kotlin unless the codebase suggests otherwise.
+## 🏗 Modular Architecture Protocol (Feature-First)
+- **Structure**: Strict adherence to `lib/features/{feature_name}/{data,domain,presentation}`.
+- **Auto-Decomposition**: 
+  - IF a widget `build` method > 50 lines -> Extract sub-widgets to private classes/methods within the same file.
+  - IF a file > 250 lines -> Split logic into `mixins` or separate business logic files.
+- **Service Locator**: Default to `Riverpod` (Flutter) and `Hilt` (Android). Avoid `get_it` unless for global singletons.
 
-## 🎨 UI & Reusability Standards
-- **Component Extraction**: Any UI pattern or layout block used more than once (or complex enough to stand alone) must be moved to `lib/core/widgets/` or `lib/shared/components/`.
-- **Stateless Preference**: Prioritize `StatelessWidget` with `Consumer` over `StatefulWidget` for better performance and testability.
-- **Theme Consistency**: All colors, text styles, and spacing must reference `Theme.of(context)` or a centralized `AppConstants`. Hardcoded values are strictly forbidden.
+## 🎨 UI & Clean UI Standards
+- **Refactoring Requirement**: Any UI block used > 1 time MUST be moved to `lib/core/widgets/` or `lib/shared/components/`.
+- **Stateless Preference**: ALWAYS use `StatelessWidget` with `Consumer` (Riverpod). Only use `StatefulWidget` for Tickers/Animations.
+- **Theme Consistency**: 
+  - FORBIDDEN: Hardcoded `Colors.xxx`, `EdgeInsets.all(8)`, or `FontSize: 16`.
+  - REQUIRED: Use `Theme.of(context).colorScheme.primary`, `AppSpacing.md`, or `context.textTheme.bodyLarge`.
 
-## ⚙️ Logic & State Management (Dart 3.x+ / Kotlin)
-- **Immutability**: Use `Freezed` (Dart) or `Data Classes` (Kotlin) for all state objects. 
-- **Business Logic**: Must reside in `Notifiers/ViewModels`. UI files must only contain layout and event-dispatching logic.
-- **Type Safety**: Utilize Dart `records`, `sealed classes`, and `pattern matching` for state-driven UI rendering.
+## ⚙️ Logic & State Management (2026 Standards)
+- **Immutability**: All states must use `@freezed` (Dart) or `data class` (Kotlin). No mutable list/map properties.
+- **Dart 3.x Power**: Use `Records` for temporary DTOs, `Sealed Classes` for State (Loading/Success/Error), and `Switch Expressions` for UI mapping.
+- **Logic Isolation**: `presentation/` only handles `ref.watch` and `ref.read`. ALL logic must reside in `Notifier` or `UseCase`.
 
-## 💾 Constants & Environment
-- **Centralized Constants**: All magic numbers (durations, paddings, grid sizes, API endpoints) must be extracted to `lib/core/constants/`.
-- **Environment**: Always check `pubspec.yaml` or `build.gradle` to ensure API compatibility before suggesting new features.
+## 🛰 Git & Atomic Workflow
+- **Commit Strategy**: Before generating code, analyze if multiple changes are requested.
+  - Separate `feat:`, `fix:`, `refactor:`, `chore:`.
+  - Suggest separate `git add` commands for unrelated logic and UI changes.
+- **Clean Diff**: Use `// ... existing code ...` to preserve surrounding logic. Never overwrite unrelated methods.
 
-## 🛰 Git & Workflow (Atomic Commits)
-- **Automatic Commit Splitting**: When a "commit" is requested, analyze all staged/unstaged changes:
-  1. Categorize changes by scope (e.g., `feat: logic`, `refactor: ui`, `chore: deps`).
-  2. If changes are unrelated, you MUST suggest or execute separate commit commands.
-  3. Ensure `dart run build_runner build` or `gradle sync` is successful before finalization.
-- **Minimalist Diff**: Use `// ... existing code ...` religiously to keep updates clean and prevent "Apply" failures.
-
-## 🔧 Systematic Debugging
-1. **Analyze**: Read linter errors and logs from the context first.
-2. **Locate**: Use `grep_search` to find related logic across the entire codebase.
-3. **Fix**: Apply the minimal surgical change needed. If the bug is architectural, explain the "Why" in one concise sentence.
+## 🔧 Systematic Debugging & Tooling
+- **Analysis**: Check `pubspec.yaml` for dependency version constraints before suggesting API-breaking changes.
+- **Error Handling**: Every `Future` or `Stream` must have a `.catchError` or `try-catch` with a structured `Failure` object.
